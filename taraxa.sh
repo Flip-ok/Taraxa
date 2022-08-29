@@ -18,7 +18,6 @@ options=(
 "Install Docker"
 "Download the Taraxa Scripts"
 "Start the Taraxa Node"
-"Update the Taraxa Node"
 "Find Node's Public Address"
 "Get Node Proof of Owership"
 "Reset"
@@ -65,10 +64,24 @@ echo "============================================================"
 echo "Install Docker"
 echo "============================================================"
 
-wget -O get-docker.sh https://get.docker.com
-sudo sh get-docker.sh
-sudo apt install -y docker-compose
-rm -f get-docker.sh
+wget -O get-docker.sh https://get.docker.com 
+	sudo sh get-docker.sh
+	# sudo apt install -y docker-compose docker.io < "/dev/null"
+	# sudo apt install -y docker-compose < "/dev/null"
+	wget https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+	chmod +x docker-compose-Linux-x86_64
+	mv docker-compose-Linux-x86_64 /usr/bin/docker-compose
+	rm -f get-docker.sh
+	
+	echo -e '\n\e[42mPreparing to install\e[0m\n' && sleep 1
+	cd $HOME
+	sudo apt update
+	sudo apt install wget curl unzip -y < "/dev/null"
+	if exists docker; then
+		echo -e '\n\e[42mDocker already installed\e[0m\n' && sleep 1
+	else
+		installDocker
+	fi
 
 break
 ;;
@@ -78,8 +91,15 @@ echo "============================================================"
 echo "Download the Taraxa Scripts"
 echo "============================================================"
 
-cd ~/
-wget https://github.com/Taraxa-project/taraxa-ops/archive/refs/heads/master.zip && unzip master.zip && rm -f master.zip
+echo -e '\n\e[42mInstall software\e[0m\n' && sleep 1
+	cd $HOME
+	wget https://github.com/Taraxa-project/taraxa-ops/archive/refs/heads/master.zip && unzip master.zip && rm -f master.zip
+	cd $HOME/taraxa-ops-master/taraxa_compose
+	# git clone https://github.com/Taraxa-project/taraxa-ops.git
+	# cd taraxa-ops/taraxa_compose
+	echo -e '\n\e[42mRunning\e[0m\n' && sleep 1
+	sudo docker-compose pull
+	sudo docker-compose up -d --force-recreate
 
 break
 ;;
@@ -90,22 +110,6 @@ echo "Start the Taraxa Node"
 echo "============================================================"
 
 cd ~/taraxa-ops-master/taraxa_compose
-sudo docker-compose up -d
-sudo docker-compose logs -f
-
-break
-;;
-
-"Update the Taraxa Node")
-echo "============================================================"
-echo "Update the Taraxa Node"
-echo "============================================================"
-
-cd ~/taraxa-ops-master/taraxa_compose
-wget -O docker-compose-new.yml https://raw.githubusercontent.com/Taraxa-project/taraxa-ops/master/taraxa_compose/docker-compose.yml && mv docker-compose-new.yml docker-compose.yml
-
-sudo docker-compose down
-sudo docker-compose pull
 sudo docker-compose up -d
 sudo docker-compose logs -f
 
